@@ -24,6 +24,7 @@
 #include "estimator.h"
 #include "transformation.h"
 #include "player.h"
+#include "fir.h"
 
 // FlyCapture2 and cv have conflicting namespaces
 // Since cv is short, we're going to use FlyCapture2 namespace here
