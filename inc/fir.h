@@ -1,6 +1,8 @@
 #pragma once
 
-#include <dequeue>
+#include <deque>
 #include "estimator.h"
 
-puckState fir(dequeue<puckState> puckStates);
+using namespace std;
+
+puckState fir(deque<puckState> puckStates);

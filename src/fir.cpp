@@ -1,6 +1,9 @@
 #include "fir.h"
+#include "estimator.h"
 
-puckState fir(dequeue<puckState> puckStates, const float dt) {
+using namespace std;
+
+puckState fir(deque<puckState> puckStates, const float dt) {
 	// Use at most 5 elements
 	if (puckStates.size() > 5) puckStates.pop_back();
 	
@@ -16,7 +19,7 @@ puckState fir(dequeue<puckState> puckStates, const float dt) {
 		retState.v_x = (puckStates.at(0).v_x - puckStates.at(1).v_x)/dt;
 		retState.v_y = (puckStates.at(0).v_y - puckStates.at(1).v_y)/dt;
 	}
-	else if (amount == 5) { // FIR
+	else if (amount_valid == 5) { // FIR
 		retState.v_x = (  0.2f*puckStates.at(0).v_x \
 										+ 0.1f*puckStates.at(1).v_x \
 										- 0.1f*puckStates.at(3).v_x \
