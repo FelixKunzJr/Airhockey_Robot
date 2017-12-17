@@ -5,3 +5,5 @@ typedef enum {
 	BLOCK, // Unsure of puck velocity
 	SHOOT, // Puck is close -> shoot
 } playerSM;
+
+void player();

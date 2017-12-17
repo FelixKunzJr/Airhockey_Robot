@@ -4,7 +4,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <list>
 
-#include <iostream>
 #include "transformation.h"
 
 /* In this file, the transformation into metric, cartesian coordinates from camera coord. is defined
@@ -36,32 +35,30 @@ void linear_t(list<cv::KeyPoint> *keypoints, const float width, const float heig
 
 void lense_correction(list<cv::KeyPoint> *keypoints)
 {
-	cv::Mat_<float> camMat(3,3); camMat << 585.1198,0,271.877,0,585.491365,167.047,0,0,1;
-	cv::Mat_<float> distMat(1,5); distMat <<-0.351424,-0.07300474,0,0,0.26193;
+	float camMatrix[9] = {
+		585.1198,0,271.877,
+		0,585.491365,167.047,
+		0,0,1
+	};
+	float dist[5] = { -0.351424,-0.07300474,0,0,0.26193 };
 
-	const int npoints = keypoints->size(); // number of point specified 
+	cv::Mat camMat = cv::Mat(camMatSize, CV_32F, camMatrix);
+	cv::Mat distMat = cv::Mat(distMatSize, CV_32F, dist);
+	vector<CV_32FC2> inputpoints(keypoints->size());
+	vector<CV_32FC2> outputpoints(keypoints->size());
+
+
+	int i = 0;
+	for (list<cv::KeyPoint>::iterator it = keypoints->begin(); it != keypoints->end(); it++) {
+		inputpoints[i] = Scalar(it->pt.x,it->pt.y);
+		++i;
+	}
+	cv::undistortPoints(inputpoints, outputpoints, camMat, distMat);
 	
-	if (npoints!=0){
-		cv::Mat_<cv::Point2f> inputpoints(1,npoints);
-		cv::Mat outputpoints;
-	
-		int i = 0;
-		for (list<cv::KeyPoint>::iterator it = keypoints->begin(); it != keypoints->end(); it++) {
-			inputpoints(i) = cv::Point2f(it->pt.x,it->pt.y);
-			++i;
-		}
-		
-		
-		cv::undistortPoints(inputpoints, outputpoints, camMat, distMat);
-	
-		float* arr = (float*)outputpoints.data;
-		
-		for (list<cv::KeyPoint>::iterator it = keypoints->begin(); it != keypoints->end(); it++) {
-			it->pt.x = (*arr)*2.6156+0.55;
-			++arr;
-			it->pt.y = -((*arr)*2.5961)-0.3946;
-			++arr;
-		}
+	i=0;
+	for (list<cv::KeyPoint>::iterator it = keypoints->begin(); it != keypoints->end(); it++) {
+		it->pt.x = outputpoints[i];
+		it->pt.y = outputpoints[i];
 	}
 }
 

@@ -23,6 +23,7 @@
 
 #include "estimator.h"
 #include "transformation.h"
+#include "player.h"
 
 // FlyCapture2 and cv have conflicting namespaces
 // Since cv is short, we're going to use FlyCapture2 namespace here
@@ -184,7 +185,8 @@ void* estimator(void* data)
 {
 	// Configuration for estimator
 	const bool calculatePos = true;
-	const bool printPos = true;
+	const bool printPos = false;
+	const bool printPosChuck = false;
 	const bool printKeypoints = false;
 	const bool printTimeStamp = false;
 	const bool showImage = false;
@@ -261,20 +263,29 @@ void* estimator(void* data)
 
 			list<cv::KeyPoint> keypoints(_keypoints.begin(), _keypoints.end());
 
+			if (printKeypoints) {
+				cout << "---------" << endl;
+				for (list<cv::KeyPoint>::iterator it = keypoints.begin(); it != keypoints.end(); it++) {
+					cout << "(X, Y) = (" << it->pt.x << ", " << it->pt.y << ")" << endl;
+				}
+				cout << "  " << endl;
+			}
+
 			// Lense correction elliptic -> cartesian
-			//lense_correction(&keypoints);
+			lense_correction(&keypoints);
 			// Convert keypoints into metric coordinate system
-			linear_t(&keypoints, f7is.width, f7is.height);
+			//linear_t(&keypoints, f7is.width, f7is.height);
 			// Check amount of keypoints
 			nrOfKeypoints = keypoints.size();
 
 			if (printKeypoints) {
-				cout << "-----" << endl;
+				cout << "after" << endl;
 				for (list<cv::KeyPoint>::iterator it = keypoints.begin(); it != keypoints.end(); it++) {
 					cout << "(X, Y) = (" << it->pt.x << ", " << it->pt.y << ")" << endl;
 				}
 				cout << "*****" << endl;
 			}
+
 
 			// Find delta_t between this image and last image
 			imdata = image.GetMetadata();
@@ -382,7 +393,7 @@ void* estimator(void* data)
 				if (sm == PUCK_LOST) cout << "; LOST";
 				cout << endl;
 			}
-			if (printPos && chuckstate.valid) {
+			if (printPosChuck && chuckstate.valid) {
 				cout << chuckstate.x << ";" << chuckstate.y << endl;
 			}
 		}
@@ -404,7 +415,9 @@ void* estimator(void* data)
 				*ptr = (*ptr < (uchar)params.minThreshold) ? 0 : 255;
 				*dptr = (*dptr < (uchar)params.minThreshold) ? 0 : 255;
 			}
-
+			
+			cout << "Showing image..\n";
+			
 			cv::namedWindow("image", CV_WINDOW_KEEPRATIO);
 			cv::imshow("image", mat);
 			cv::namedWindow("thresholded", CV_WINDOW_KEEPRATIO);
@@ -568,40 +581,12 @@ ostream &operator<<(ostream &os, const chuckState &c)
 }
 
 int main()
-{
-	/*Estimator estimatorObj;
-	try {
-		estimatorObj.startEstimator();
-	} 
-	catch (Error err) {
-		PrintError(err);
-		return -1;
-	}
-
-	unsigned int f = 0;
-	for (int i = 0; i < 100; i++) {
-		while (f == estimatorObj.getFrameCounter()) {
-			usleep(1);
-		}
-		f = estimatorObj.getFrameCounter();
-		puckState p = estimatorObj.getPuckState();
-		chuckState c = estimatorObj.getChuckState();
-		cout << p;
-		cout << c;
-		cout << f << endl << endl;
-	}
-
-	try {
-		estimatorObj.stopEstimator();
-	}
-	catch (Error err) {
-		PrintError(err);
-		return -1;
-	}*/
+{	
+	//Estimator obj;
+	//obj.startConsole();
 	
-	Estimator obj;
-	obj.startConsole();
-
+	player();
+	
 	cin.ignore();
 	return 0;
 }
