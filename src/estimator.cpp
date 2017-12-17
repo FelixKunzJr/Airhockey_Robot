@@ -53,32 +53,6 @@ void PrintError(Error error)
 	error.PrintErrorTrace();
 }
 
-/*
-// untested! Maybe use opencv kalman filter instead?
-static void kalman(const Vector2f z, Vector4f& x, Matrix4f& P, const float dt)
-{
-	// Kalman filtering constants
-	const float e = 0.8f; // Damping constant in 1/s
-	const float q = 0.0001f; // process covariance coeff in 1/s^2
-	const float r = 0.006f; // measurement covariance coeff in 1/s^2
-	// Kalman filter matrices
-	Matrix4f A = Matrix4f::Identity();
-	A.topRightCorner(2, 2) = dt*Matrix2f::Identity();
-	A.bottomLeftCorner(2, 2) -= e*dt*Matrix2f::Identity();
-	Matrix<float, 2, 4> H = MatrixXf::Zero(2,4);
-	H.topLeftCorner(2, 2) = Matrix2f::Identity();
-	Matrix4f Q = Matrix4f::Identity()*q*dt*dt;
-	Matrix2f R = Matrix2f::Identity()*r*dt*dt;
-
-	Vector4f x_estimate = A*x;
-	Matrix4f P_estimate = A*P*A.transpose() + Q;
-
-	Matrix2f temp = H*P_estimate.transpose()*H.transpose() + R;
-	Matrix<float, 4, 2> K = P_estimate*H.transpose()*temp.inverse();
-	x = x_estimate + K*(z - H*x_estimate);
-	P = (Matrix4f::Identity() - K*H)*P_estimate;
-}*/
-
 /* Finds the nearest keypoint between begin and end to the x,y position
  * If no point is closer to x,y than max_distance (default infinity), end is returned
  * If a keypoint is the closest to x,y and its distance smaller than max_distance,
